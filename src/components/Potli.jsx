@@ -1,7 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 // The main component for displaying the potli bag product grid.
 const PotliPage = () => {
+
+  const navigate = useNavigate();
+  
   // State to hold the list of potli bags with their details.
   const [potliBags, setPotliBags] = useState([
     {
@@ -75,15 +79,31 @@ const PotliPage = () => {
     setNotification(`${potliBag.name} has been added to your cart!`);
     setTimeout(() => {
       setNotification("");
-    }, 3000);
+      navigate("/cart");
+    }, 1500);
   };
+ // Save journal to wishlist
+  const handleSaveToWishlist = (journal) => {
+    const wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+    const existing = wishlist.find((item) => item.id === journal.id);
 
+    if (!existing) {
+      wishlist.push(journal);
+      localStorage.setItem("wishlist", JSON.stringify(wishlist));
+    }
+
+    navigate("/wishlist");
+  };
   // Toggles the theme between light and dark
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
   };
 
-  const styles = `
+   return (
+    // The 'className' changes based on the 'isDarkMode' state, which triggers the CSS for dark mode.
+    <>
+      <style>
+        {`
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;600&display=swap');
 
     html { scroll-behavior: smooth; }
@@ -510,11 +530,8 @@ const PotliPage = () => {
         .styled-wrapper { top: 0.5rem; left: 0.5rem; }
         .theme-toggle-wrapper { top: 1rem; right: 1rem; }
     }
-  `;
-
-  return (
-    <>
-      <style>{styles}</style>
+`}
+      </style>
       <div className={`potli-page ${isDarkMode ? "dark-mode" : ""}`}>
         <div className="styled-wrapper">
           <button className="button" onClick={() => window.history.back()}>

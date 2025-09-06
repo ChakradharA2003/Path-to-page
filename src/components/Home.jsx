@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 
 const Home = () => {
   const navbarRef = useRef(null);
   const hasAnimated = useRef(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [theme, setTheme] = useState("light");
+  const location = useLocation();
 
   // Effect for setting the theme from localStorage on initial load
   useEffect(() => {
@@ -22,19 +24,16 @@ const Home = () => {
   };
 
   useEffect(() => {
-    // A single function to load all necessary animation libraries from a CDN.
     const loadScripts = () => {
       const scripts = [
         "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js",
         "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js",
         "https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js",
-        // Add the Lenis CDN link here
-        "https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.27/studio-freight/lenis.min.js",
       ];
+
       let scriptsLoaded = 0;
 
       scripts.forEach((src) => {
-        // Prevent adding duplicate scripts
         if (document.querySelector(`script[src="${src}"]`)) {
           scriptsLoaded++;
           if (scriptsLoaded === scripts.length) initAnimations();
@@ -49,19 +48,18 @@ const Home = () => {
             initAnimations();
           }
         };
-        // Append scripts to the body to prevent render-blocking
         document.body.appendChild(script);
       });
     };
 
-    // Initializes all the animations once the libraries are loaded.
     const initAnimations = () => {
-      if (hasAnimated.current || !window.gsap) return;
+      if (hasAnimated.current || !window.gsap || !window.anime) return;
       hasAnimated.current = true;
 
+      // Register ScrollTrigger
       window.gsap.registerPlugin(window.ScrollTrigger);
 
-      // Animate Navbar elements
+      // Navbar animation
       window.gsap.from(navbarRef.current, {
         y: -100,
         opacity: 0,
@@ -69,7 +67,7 @@ const Home = () => {
         ease: "power3.out",
       });
 
-      // Animate Hero Text with Anime.js
+      // Anime.js Hero title animation
       const textWrapper = document.querySelector(".hero-title");
       if (textWrapper && !textWrapper.querySelector(".letter")) {
         textWrapper.innerHTML = textWrapper.textContent.replace(
@@ -86,6 +84,7 @@ const Home = () => {
         });
       }
 
+      // Other GSAP scroll animations
       window.gsap.from(".hero p, .cta-button", {
         opacity: 0,
         y: 30,
@@ -95,7 +94,6 @@ const Home = () => {
         ease: "power3.out",
       });
 
-      // Animate section title on scroll
       window.gsap.from(".featured-products h2", {
         scrollTrigger: {
           trigger: ".featured-products h2",
@@ -108,7 +106,6 @@ const Home = () => {
         ease: "power3.out",
       });
 
-      // Animate Featured Products on scroll
       window.gsap.from(".product-card", {
         scrollTrigger: {
           trigger: ".featured-products",
@@ -122,7 +119,6 @@ const Home = () => {
         ease: "power3.out",
       });
 
-      // Animate Footer on scroll
       window.gsap.from(".footer-content > *", {
         scrollTrigger: {
           trigger: ".footer",
@@ -150,31 +146,27 @@ const Home = () => {
     };
 
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
 
-  // Function for smooth scrolling
+  // Smooth scroll function
   const handleSmoothScroll = (e, targetId) => {
     e.preventDefault();
     const targetElement = document.getElementById(targetId);
     if (targetElement) {
-      window.gsap.to(window, {
-        duration: 1,
-        scrollTo: {
-          y: targetElement,
-          offsetY: 70, // Adjust this offset to account for the fixed navbar
-        },
-        ease: "power2.out",
+      window.scrollTo({
+        top: targetElement.offsetTop - 70, // Offset for navbar
+        behavior: "smooth",
       });
-      setIsMenuOpen(false); // Close the mobile menu after clicking a link
+      setIsMenuOpen(false);
     }
   };
 
   const styles = `
     @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Playfair+Display:wght@700&family=Poppins:wght@400;600&display=swap');
-
 @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&display=swap');
-
     
     /* --- Theme Variables --- */
     body[data-theme='light'] {
@@ -232,13 +224,8 @@ const Home = () => {
       color: var(--text-color);
       transition: background-color 0.4s ease, color 0.4s ease;
       overflow-x: hidden;
-      scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE 10+ */
     }
-html::-webkit-scrollbar {
-  width: 0px;
-  background: transparent; /* Optional: just make it transparent */
-}
+
     #root, .home-container {
       display: flex;
       flex-direction: column;
@@ -258,7 +245,6 @@ html::-webkit-scrollbar {
       z-index: 1001; /* Ensure it's above other content but below navbar */
       position: relative;
     }
-    
     .navbar {
       display: flex;
       justify-content: space-between;
@@ -269,41 +255,57 @@ html::-webkit-scrollbar {
       left: 0;
       width: 100%;
       z-index: 1000;
-      transition: background-color 0.3s ease, box-shadow 0.3s ease, padding 0.3s ease, top 0.3s ease;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease,
+        padding 0.3s ease, top 0.3s ease;
       box-sizing: border-box;
     }
 
     /* Adjust navbar top position based on disclaimer banner */
     body:has(.disclaimer-banner) .navbar {
-        top: 36px; /* Adjust this value to match the height of your banner */
+      top: 36px; /* Adjust this value to match the height of your banner */
     }
-    
+
+
     .navbar.scrolled {
       background-color: var(--nav-scroll-bg);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
       padding: 0.5rem 2rem;
       top: 0; /* When scrolled, navbar sticks to the very top */
     }
 
-    .logo {
-      font-family: 'Cinzel Decorative';
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: var(--nav-link-color);
-      transition: color 0.3s;
-      z-index: 1001;
-      display: flex;
-      align-items: center;
-    }
-.logo-text {
-  font-family: 'Cinzel Decorative';
+ .logo {
+  font-family: "Cinzel Decorative";
   font-size: 1.8rem;
   font-weight: 700;
   color: var(--nav-link-color);
   transition: color 0.3s;
+  z-index: 1001;
+  display: flex;
+  align-items: center;
+  text-decoration: none;   /* 👈 remove underline */
 }
+
+.logo:hover {
+  text-decoration: none;   /* 👈 also remove underline on hover */
+}
+
+.logo-text {
+  margin-left: 0.5rem;     /* spacing between logo & text */
+  text-decoration: none;   /* ensure span is clean */
+  color: inherit;          /* inherits logo color */
+}
+}
+
+    .logo-text {
+      font-family: "Cinzel Decorative";
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: black;
+      transition: color 0.3s;
+    
+    }
 
     .logo img {
       height: 40px;
@@ -330,7 +332,7 @@ html::-webkit-scrollbar {
     }
 
     .nav-links a::after {
-      content: '';
+      content: "";
       position: absolute;
       width: 0;
       height: 2px;
@@ -343,7 +345,23 @@ html::-webkit-scrollbar {
     .nav-links a:hover::after {
       width: 100%;
     }
-    
+.product-button {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.7rem 1.5rem;
+  background-color: var(--accent-color-1);
+  color: #fff;
+  border-radius: 6px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.product-button:hover {
+  background-color: #d88c75;
+  transform: translateY(-2px);
+}
+
     /* --- Hamburger Menu Styles --- */
     .hamburger {
       display: none;
@@ -351,7 +369,9 @@ html::-webkit-scrollbar {
       z-index: 1001;
     }
 
-    .hamburger input { display: none; }
+    .hamburger input {
+      display: none;
+    }
 
     .hamburger svg {
       height: 2.5em;
@@ -365,198 +385,213 @@ html::-webkit-scrollbar {
       stroke-linejoin: round;
       stroke-width: 3;
       transition: stroke-dasharray 600ms cubic-bezier(0.4, 0, 0.2, 1),
-                  stroke-dashoffset 600ms cubic-bezier(0.4, 0, 0.2, 1),
-                  stroke 0.3s ease;
+        stroke-dashoffset 600ms cubic-bezier(0.4, 0, 0.2, 1),
+        stroke 0.3s ease;
     }
-    
-    .navbar.scrolled .hamburger .line {
-        stroke: var(--hamburger-scrolled-line-color);
+    .navbar.scrolled .line {
+      stroke: var(--hamburger-scrolled-line-color);
     }
 
-    .line-top-bottom { stroke-dasharray: 12 63; }
+    .line-top-bottom {
+      stroke-dasharray: 12 63;
+    }
 
-    .hamburger input:checked + svg { transform: rotate(-45deg); }
+    .hamburger input:checked + svg {
+      transform: rotate(-45deg);
+    }
 
     .hamburger input:checked + svg .line-top-bottom {
       stroke-dasharray: 20 300;
       stroke-dashoffset: -32.42;
     }
-    
-    /* --- Theme Toggle Styles --- */
-    .theme-checkbox {
-      --toggle-size: 12px;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      appearance: none;
-      width: 6.25em;
-      height: 3.125em;
-      background: -webkit-gradient(linear, left top, right top, color-stop(50%, #efefef), color-stop(50%, #2a2a2a)) no-repeat;
-      background: linear-gradient(to right, #efefef 50%, #2a2a2a 50%) no-repeat;
-      background-size: 205%;
-      background-position: 0;
-      transition: 0.4s;
-      border-radius: 99em;
-      position: relative;
-      cursor: pointer;
-      font-size: var(--toggle-size);
+
+    /* --- Mobile Menu --- */
+    .mobile-menu {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background: var(--mobile-menu-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transform: translateX(100%);
+      transition: transform 0.4s cubic-bezier(0.86, 0, 0.07, 1);
+      z-index: 999;
     }
 
-    .theme-checkbox::before {
-      content: "";
-      width: 2.25em;
-      height: 2.25em;
-      position: absolute;
-      top: 0.438em;
-      left: 0.438em;
-      background: linear-gradient(to right, #efefef 50%, #2a2a2a 50%) no-repeat;
-      background-size: 205%;
-      background-position: 100%;
-      border-radius: 50%;
-      transition: 0.4s;
+    .mobile-menu.open {
+      transform: translateX(0);
     }
 
-    .theme-checkbox:checked::before {
-      left: calc(100% - 2.25em - 0.438em);
-      background-position: 0;
+    .mobile-menu a {
+      text-decoration: none;
+      color: var(--mobile-menu-text);
+      font-size: 2rem;
+      margin: 1.5rem 0;
+      font-weight: 600;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
     }
 
-    .theme-checkbox:checked {
-      background-position: 100%;
+    .mobile-menu.open a {
+      opacity: 1;
+      transform: translateY(0);
     }
-    
-    .theme-switcher-wrapper {
-        display: flex;
-        align-items: center;
+    /* Staggered animation for mobile menu links */
+    .mobile-menu.open a:nth-child(1) {
+      transition-delay: 0.2s;
     }
-
+    .mobile-menu.open a:nth-child(2) {
+      transition-delay: 0.3s;
+    }
+    .mobile-menu.open a:nth-child(3) {
+      transition-delay: 0.4s;
+    }
+    .mobile-menu.open a:nth-child(4) {
+      transition-delay: 0.5s;
+    }
+    .mobile-menu.open a:nth-child(5) {
+      transition-delay: 0.6s;
+    }
+    .mobile-menu.open a:nth-child(6) {
+      transition-delay: 0.7s;
+    }
+    .mobile-menu.open a:nth-child(7) {
+      transition-delay: 0.8s;
+    }
     .hero {
       height: 100vh;
-      position: relative;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       text-align: center;
       color: var(--hero-text-color);
+      position: relative;
       overflow: hidden;
-      /* Add padding top to account for the fixed navbar and disclaimer */
-      padding-top: 76px; /* Approx height of disclaimer + initial navbar */
-      box-sizing: border-box;
     }
 
-    #hero-video {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        min-width: 100%;
-        min-height: 100%;
-        width: auto;
-        height: auto;
-        z-index: -1;
-        transform: translateX(-50%) translateY(-50%);
-        background-size: cover;
+    .hero-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -2;
+      filter: brightness(0.8);
     }
 
-    .hero-content {
-      background-color: var(--hero-overlay-bg);
-      padding: 2rem;
-      border-radius: 10px;
-      z-index: 1;
-      max-width: 90%;
+    .hero::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--hero-overlay-bg);
+      z-index: -1;
     }
 
-    .hero h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: 4rem;
+    .hero-title {
+      font-family: "Cinzel Decorative", serif;
+      font-size: 5rem;
+      font-weight: 900;
       margin: 0;
-      font-weight: normal;
+      letter-spacing: 5px;
+      text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
     }
-    
-    .hero-title .letter { display: inline-block; line-height: 1em; }
 
-    .hero p { font-size: 1.5rem; margin: 1rem 0 2rem; }
+    .hero p {
+      font-size: 1.5rem;
+      margin: 1rem 0 2rem;
+      max-width: 600px;
+      text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+    }
 
     .cta-button {
-      padding: 1rem 2rem;
+      padding: 1rem 2.5rem;
       background-color: var(--accent-color-1);
       color: #fff;
       text-decoration: none;
-      font-weight: 600;
       border-radius: 50px;
+      font-weight: 600;
       transition: background-color 0.3s, transform 0.3s;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     }
 
     .cta-button:hover {
-      background-color: #d46a4d;
+      background-color: #d88c75; /* Lighter shade of accent-1 */
       transform: translateY(-3px);
     }
-    
+
+    /* --- Featured Products Section --- */
     .featured-products {
-      padding: 4rem 2rem;
+      padding: 5rem 2rem;
       text-align: center;
     }
 
     .featured-products h2 {
-      font-family: 'Playfair Display', serif;
-      font-size: 2.5rem;
-      margin-bottom: 2rem;
+      font-family: "Playfair Display", serif;
+      font-size: 2.8rem;
+      margin-bottom: 3rem;
+      color: var(--text-color);
     }
 
     .product-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 2rem;
+      gap: 2.5rem;
       max-width: 1200px;
       margin: 0 auto;
     }
 
     .product-card {
       background: var(--card-bg);
-      color: var(--text-color);
       border-radius: 10px;
-      box-shadow: 0 8px 24px var(--card-shadow);
       overflow: hidden;
-      transition: transform 0.3s, box-shadow 0.3s, background-color 0.4s, color 0.4s;
+      box-shadow: 0 5px 15px var(--card-shadow);
+      transition: transform 0.3s, box-shadow 0.3s;
+      text-decoration: none;
+      color: var(--text-color);
     }
 
     .product-card:hover {
       transform: translateY(-10px);
-      box-shadow: 0 12px 32px var(--card-hover-shadow);
+      box-shadow: 0 15px 30px var(--card-hover-shadow);
     }
 
-    .product-card img { width: 100%; height: 250px; object-fit: cover; }
+    .product-image {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+    }
 
-    .product-card h3 {
-      font-family: 'Playfair Display', serif;
+    .product-info {
+      padding: 1.5rem;
+    }
+
+    .product-info h3 {
+      margin: 0 0 0.5rem;
+      font-family: "Playfair Display", serif;
       font-size: 1.5rem;
-      margin: 1rem 0 0.5rem;
     }
 
-    .product-card p {
-      padding: 0 1.5rem;
+    .product-info p {
+      margin: 0;
       color: var(--text-color);
       opacity: 0.8;
     }
-
-    .product-btn {
-      padding: 0.8rem 1.5rem;
-      background-color: var(--text-color);
-      color: var(--bg-color);
-      border: none;
-      border-radius: 50px;
-      cursor: pointer;
-      margin: 1.5rem 0;
-      transition: background-color 0.3s, color 0.3s;
-    }
-
-    .product-btn:hover {
-      opacity: 0.8;
-    }
-
-    /* --- Root variables for easy theming --- */
+    /* --- Footer Styles --- */
     :root {
       --footer-bg-light: #fffaf0; /* floralwhite */
-      --footer-text-light: #333333; /* Darker grey for contrast */
+      --footer-text-light: #0c0c0cff; /* Darker grey for contrast */
       --footer-accent: #b99a6b; /* Muted Gold */
       --footer-shadow-light: rgba(0 0 0 / 0.1);
       --glass-bg-light: rgba(255 255 255 / 0.6);
@@ -574,10 +609,10 @@ html::-webkit-scrollbar {
       color: var(--footer-text-light);
       text-align: center;
       padding: 5rem 2rem;
-      gap:10px;
-       margin-top: 4rem;
+      gap: 10px;
+      //  margin-top: 4rem;
       transition: background-color 0.5s ease, color 0.5s ease;
-      font-family: 'Poppins', sans-serif;
+      font-family: "Poppins", sans-serif;
       letter-spacing: 0.3px;
       user-select: none;
     }
@@ -614,7 +649,7 @@ html::-webkit-scrollbar {
     .footer-section h3 {
       font-size: 1.4rem;
       margin-bottom: 1rem;
-      font-family: 'Playfair Display', serif;
+      font-family: "Playfair Display", serif;
       color: var(--footer-accent);
       font-weight: 700;
       letter-spacing: 1.1px;
@@ -639,7 +674,7 @@ html::-webkit-scrollbar {
       color: var(--footer-accent);
       text-decoration: underline;
     }
-        
+
     /* Visually hidden label for accessibility */
     .visually-hidden {
       position: absolute;
@@ -719,11 +754,11 @@ html::-webkit-scrollbar {
     }
 
     .footer-newsletter button:hover {
-      background:#FFE5B4;
+      background: #ffe5b4;
       box-shadow: 0 8px 18px rgba(53, 122, 189, 0.7);
       transform: translateY(-2px);
       color: #08080893;
-      border-color: #285A8E;
+      border-color: #285a8e;
     }
 
     .footer-newsletter button:active {
@@ -751,7 +786,8 @@ html::-webkit-scrollbar {
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+      transition: transform 0.3s ease, box-shadow 0.3s ease,
+        border-color 0.3s ease;
       user-select: none;
       position: relative;
       overflow: hidden;
@@ -769,7 +805,7 @@ html::-webkit-scrollbar {
       width: 26px;
       height: 26px;
       color: var(--footer-text-light);
-      filter: drop-shadow(0 0 1px rgba(0,0,0,0.15));
+      filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.15));
       transition: color 0.3s ease;
       z-index: 10;
     }
@@ -777,7 +813,7 @@ html::-webkit-scrollbar {
     @media (prefers-color-scheme: dark) {
       .social-links .button svg {
         color: var(--footer-text-dark);
-        filter: drop-shadow(0 0 2px rgba(0,0,0,0.25));
+        filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.25));
       }
     }
 
@@ -815,170 +851,248 @@ html::-webkit-scrollbar {
     }
 
     /* Override link colors for Quick Links and Information sections */
-    .footer-section.quick-links .footer-links a,
-    .footer-section.information .footer-links a {
+    /* Override link colors for Quick Links and Information sections */
+    .footer-section.footer-quick-links .footer-links a,
+    .footer-section.footer-information .footer-links a {
       color: white;
       opacity: 0.85;
       font-weight: 500;
       text-decoration: none;
       transition: opacity 0.25s ease, color 0.25s ease;
     }
-    .footer-section.information .footer-links a {
-        color: white;
-    }
 
-    .footer-section.quick-links .footer-links a:hover,
-    .footer-section.information .footer-links a:hover {
+    .footer-section.footer-quick-links .footer-links a:hover,
+    .footer-section.footer-information .footer-links a:hover {
       color: var(--footer-accent);
       opacity: 1;
       text-decoration: underline;
     }
 
-
-    /* --- Media Queries (Mobile-First Approach) --- */
-
-    /* Default styles for mobile devices (up to 479px) */
-    .hero h1 { font-size: 2.5rem; }
-    .hero p { font-size: 1.2rem; }
-    .logo { font-size: 1.5rem; }
-    .navbar, .navbar.scrolled { padding: 0.5rem 1rem; }
-    .hamburger { display: block; }
-    .nav-links {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1.5rem;
-      background-color: var(--mobile-menu-bg);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100vh;
-      justify-content: center;
-      transform: translateX(-100%);
-      transition: transform 0.3s ease-in-out;
-    }
-    .nav-links.active { transform: translateX(0); }
-    .nav-links a {
-      color: var(--mobile-menu-text);
-      font-size: 1.5rem;
-    }
-    .nav-links a:hover::after { width: 0; }
-    .theme-switcher-wrapper { margin-top: 2rem; }
-    .featured-products { padding: 3rem 1rem; }
-    .featured-products h2 { font-size: 2rem; }
-    .product-grid { grid-template-columns: 1fr; }
-    .footer-content {
-      text-align: center;
-      grid-template-columns: 1fr;
-    }
-    .footer-section { margin-bottom: 2rem; }
-    .social-links { justify-content: center; }
-    .footer-newsletter { margin-top: 1rem; }
-
-    /* Small to Medium Devices (e.g., larger phones, 480px and up) */
-    @media (min-width: 480px) {
-      .hero h1 { font-size: 1.8rem; }
-      .hero p { font-size: 1rem; }
-      .product-grid { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
-    }
-
-    /* Tablets (768px and up) */
-    @media (min-width: 768px) {
-      .hero h1 { font-size: 3.5rem; }
-      .hero p { font-size: 1.4rem; }
-      .featured-products { padding: 4rem 1.5rem; }
-      .featured-products h2 { font-size: 2.2rem; }
-      .product-grid { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
-      .footer-content {
-        text-align: left;
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .footer-section:last-child {
-        grid-column: span 2;
-        margin-top: 2rem;
-      }
-      .social-links { justify-content: flex-start; }
-      
-    }
-
-    /* Desktops (992px and up) */
-    @media (min-width: 992px) {
-      .hero h1 { font-size: 4rem; }
-      .hero p { font-size: 1.5rem; }
-      .logo { font-size: 1.8rem; }
-      .navbar, .navbar.scrolled { padding: 1rem 2rem; }
-      .hamburger { display: none; }
+    /* --- Media Queries --- */
+    @media (max-width: 992px) {
       .nav-links {
-        display: flex;
-        flex-direction: row;
-        position: static;
-        width: auto;
-        height: auto;
-        background-color: transparent;
-        backdrop-filter: none;
-        -webkit-backdrop-filter: none;
-        transform: translateX(0);
-        gap: 2rem;
+        display: none;
       }
-      .nav-links a {
-        color: var(--nav-link-color);
+      .hamburger {
+        display: block;
+      }
+      .hero-title {
+        font-size: 3.5rem;
+      }
+      .hero p {
+        font-size: 1.2rem;
+      }
+      
+        a.logo-text {
+  text-decoration: none;
+}
+
+    }
+
+    @media (max-width: 576px) {
+      .hero-title {
+        font-size: 2.5rem;
+      }
+      .hero p {
         font-size: 1rem;
+        padding: 0 1rem;
       }
-      .navbar.scrolled .nav-links a { color: var(--nav-scrolled-text); }
-      .nav-links a:hover::after { width: 100%; }
-      .theme-switcher-wrapper { margin-top: 0; }
-      .footer-content {
-        grid-template-columns: repeat(4, 1fr);
+      .cta-button {
+        padding: 0.8rem 2rem;
+        font-size: 0.9rem;
       }
-      .footer-section:last-child {
-        grid-column: auto;
-        margin-top: 0;
+      .featured-products {
+        padding: 4rem 1rem;
       }
+      .featured-products h2 {
+        font-size: 2.2rem;
+      }
+    }
+    .theme-toggle-wrapper {
+      position: fixed;
+      top: 1.5rem;
+      right: 1.5rem;
+      z-index: 1002; /* Ensure it's above the navbar */
     }
 
-    /* Large Desktops (1200px and up) */
-    @media (min-width: 1200px) {
-      .navbar, .navbar.scrolled { padding: 1.5rem 4rem; }
-      .nav-links { gap: 2.5rem; }
-      .featured-products h2 { font-size: 2.5rem; }
+    .theme-checkbox {
+      --toggle-size: 12px;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      width: 6.25em;
+      height: 3.125em;
+      background: -webkit-gradient(
+          linear,
+          left top,
+          right top,
+          color-stop(50%, #efefef),
+          color-stop(50%, #2a2a2a)
+        )
+        no-repeat;
+      background: -o-linear-gradient(left, #efefef 50%, #2a2a2a 50%) no-repeat;
+      background: linear-gradient(to right, #efefef 50%, #2a2a2a 50%) no-repeat;
+      background-size: 205%;
+      background-position: 0;
+      -webkit-transition: 0.4s;
+      -o-transition: 0.4s;
+      transition: 0.4s;
+      border-radius: 99em;
+      position: relative;
+      cursor: pointer;
+      font-size: var(--toggle-size);
     }
 
-    /* Extra Large Desktops (1440px and up) */
-    @media (min-width: 1440px) {
-      .featured-products, .footer {
-        padding-left: 6rem;
-        padding-right: 6rem;
-      }
-      .hero h1 {
-        font-size: 5rem;
-      }
+    .theme-checkbox::before {
+      content: "";
+      width: 2.25em;
+      height: 2.25em;
+      position: absolute;
+      top: 0.438em;
+      left: 0.438em;
+      background: -webkit-gradient(
+          linear,
+          left top,
+          right top,
+          color-stop(50%, #efefef),
+          color-stop(50%, #2a2a2a)
+        )
+        no-repeat;
+      background: -o-linear-gradient(left, #efefef 50%, #2a2a2a 50%) no-repeat;
+      background: linear-gradient(to right, #efefef 50%, #2a2a2a 50%) no-repeat;
+      background-size: 205%;
+      background-position: 100%;
+      border-radius: 50%;
+      -webkit-transition: 0.4s;
+      -o-transition: 0.4s;
+      transition: 0.4s;
     }
+
+    .theme-checkbox:checked::before {
+      left: calc(100% - 2.25em - 0.438em);
+      background-position: 0;
+    }
+
+    .theme-checkbox:checked {
+      background-position: 100%;
+    }
+    /* Base styles (mobile-first) = up to 375px */
+/* Already covered by your default CSS */
+
+/* Small devices: ≥ 376px to 575px (slightly larger phones) */
+@media (min-width: 376px) and (max-width: 575px) {
+  .hero-title {
+    font-size: 2.2rem;
+  }
+  .hero p {
+    font-size: 1rem;
+    padding: 0 1rem;
+  }
+  .cta-button {
+    font-size: 0.85rem;
+    padding: 0.7rem 1.8rem;
+  }
+}
+
+/* Medium devices: ≥ 576px to 767px (large phones & phablets) */
+@media (min-width: 576px) and (max-width: 767px) {
+  .hero-title {
+    font-size: 2.6rem;
+  }
+  .hero p {
+    font-size: 1.1rem;
+  }
+  .product-grid {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+}
+
+/* Tablets: ≥ 768px to 991px */
+@media (min-width: 768px) and (max-width: 991px) {
+  .hero-title {
+    font-size: 3.2rem;
+  }
+  .hero p {
+    font-size: 1.3rem;
+  }
+  .featured-products {
+    padding: 4rem 2rem;
+  }
+  .nav-links {
+    gap: 1.5rem;
+  }
+}
+
+/* Small laptops: ≥ 992px to 1199px */
+@media (min-width: 992px) and (max-width: 1199px) {
+  .hero-title {
+    font-size: 4rem;
+  }
+  .hero p {
+    font-size: 1.4rem;
+  }
+  .product-grid {
+    gap: 2rem;
+  }
+}
+
+/* Desktops: ≥ 1200px to 1439px */
+@media (min-width: 1200px) and (max-width: 1439px) {
+  .hero-title {
+    font-size: 4.5rem;
+  }
+  .hero p {
+    font-size: 1.5rem;
+  }
+  .featured-products h2 {
+    font-size: 2.5rem;
+  }
+}
+
+/* Large Desktops: ≥ 1440px and above */
+@media (min-width: 1440px) {
+  .hero-title {
+    font-size: 5rem;
+  }
+  .hero p {
+    font-size: 1.6rem;
+    max-width: 700px;
+  }
+  .featured-products h2 {
+    font-size: 3rem;
+  }
+  .product-grid {
+    max-width: 1400px;
+  }
+}
+
   `;
 
   return (
     <>
       <style>{styles}</style>
-      {/* Disclaimer Banner */}
-      {/* <div className="disclaimer-banner">
-        END OF SEASON SALE - UP TO 50% OFF
-      </div> */}
       <div className="home-container">
-        {/* Navbar */}
-        <nav className="navbar" ref={navbarRef}>
-          <div className="logo">
-  <img
-    src="/logo.png"
-    alt="Path to Page Logo"
-    width="40"
-    height="40"
-  />
-  <span className="logo-text">Path to Page</span>
-</div>
+        {/* <div className="disclaimer-banner">āś
+          This is a project website for educational purposes only.
+        </div> */}
+        <nav ref={navbarRef} className="navbar">
+          <Link to="/" className="logo">
+            <img
+              src={`${process.env.PUBLIC_URL}/logo.png`}
+              alt="PathToPage Logo"
+            />
+            <span className="logo-text">PathToPage</span>
+          </Link>
 
+          <div className="nav-links">
+            <Link to="/">Home</Link>
+            <Link to="/shop">Shop</Link>
+            <Link to="/about">About</Link>
+            <Link to="/cart">Cart</Link>
 
+            <Link to="/Wishlist">Wishlist</Link>
+            <Link to="/Myaccount">Profile</Link>
+          </div>
           <label className="hamburger">
             <input
               type="checkbox"
@@ -993,201 +1107,222 @@ html::-webkit-scrollbar {
               <path className="line" d="M7 16 27 16"></path>
             </svg>
           </label>
-          <div className={`nav-links ${isMenuOpen ? "active" : ""}`}>
-            {/* Smooth scroll link to home */}
-            <a href="#top" onClick={(e) => handleSmoothScroll(e, "top")}>
-              Home
-            </a>
-            <a href="/shop" onClick={() => setIsMenuOpen(false)}>
-              Shop
-            </a>
-            <a href="/Wishlist" onClick={() => setIsMenuOpen(false)}>
-              Wishlist
-            </a>
-            <a href="/cart" onClick={() => setIsMenuOpen(false)}>
-              Cart
-            </a>
-            <a href="/about" onClick={() => setIsMenuOpen(false)}>
-              About
-            </a>
-            <a href="/Myaccount " onClick={() => setIsMenuOpen(false)}>
-              Profile
-            </a>
-              {/* <div className="theme-switcher-wrapper">
-                <input
-                  type="checkbox"
-                  className="theme-checkbox"
-                  onChange={toggleTheme}
-                  checked={theme === "dark"}
-                />
-              </div> */}
-          </div>
         </nav>
+        <div className={`mobile-menu ${isMenuOpen ? "open" : ""}`}>
+          <Link to="/" onClick={() => setIsMenuOpen(false)}>
+            Home
+          </Link>
+          <Link to="/shop" onClick={() => setIsMenuOpen(false)}>
+            Shop
+          </Link>
+          <Link to="/about" onClick={() => setIsMenuOpen(false)}>
+            About
+          </Link>
+          <Link to="/cart" onClick={() => setIsMenuOpen(false)}>
+            Cart
+          </Link>
 
-        {/* Hero Section */}
-        <header className="hero" id="top">
+          <Link to="/Wishlist" onClick={() => setIsMenuOpen(false)}>
+            Wishlist
+          </Link>
+          <Link to="/Myaccount" onClick={() => setIsMenuOpen(false)}>
+            My Account
+          </Link>
+        </div>
+
+        {/* <div className="theme-toggle-wrapper">
+          <input
+            type="checkbox"
+            className="theme-checkbox"
+            id="theme-toggle"
+            checked={theme === "dark"}
+            onChange={toggleTheme}
+          />
+        </div> */}
+        <header className="hero">
           <video
             autoPlay
             loop
             muted
             playsInline
-            id="hero-video"
-            preload="none"
-            poster="https://i.imgur.com/your-optimized-poster-image.jpg"
-          >
-            <source
-              src="https://videos.pexels.com/video-files/6074179/6074179-uhd_2732_1440_25fps.mp4"
-              type="video/mp4"
-            />
-            {/* Add a track element for captions */}
-            <track
-              kind="captions"
-              src="/path/to/captions.vtt"
-              srclang="en"
-              label="English"
-            />
-            Your browser does not support the video tag.
-          </video>
-          <div className="hero-content">
-            <h1 className="hero-title">
-              Turn your camera roll into a roll of stories
-            </h1>
-            <p>
-              Catch a moment. Trap it on paper. Sneak it into your book of
-              adventures — before it escapes.
-            </p>
-            {/* <a
-              href="#featured"
-              className="cta-button"
-              onClick={(e) => handleSmoothScroll(e, "featured")}
-            >
-              Begin Your Legacy
-            </a> */}
-          </div>
+            className="hero-background"
+            src="https://videos.pexels.com/video-files/6074191/6074191-uhd_2732_1440_25fps.mp4"
+          ></video>
+          <h1 className="hero-title">PathToPage</h1>
+          <p>
+            Discover handcrafted treasures and unique gifts for every journey.
+          </p>
+          {/* <Link to="/shop" className="cta-button">
+            Explore Collections
+          </Link> */}
         </header>
+        <main>
+          <section id="featured" className="featured-products">
+            <h2>Featured Products</h2>
+            <div className="product-grid">
+              <Link to="/Journal" className="product-card">
+                <img
+                  src="https://i.pinimg.com/736x/e0/62/01/e06201d44f84f51fceb8fc621d690740.jpg"
+                  alt="The Wanderer's Journal"
+                  className="product-image"
+                />
+                <div className="product-info">
+                  <h3>The Wanderer's Journal</h3>
+                  <p>A handcrafted leather journal for your adventures.</p>
+                </div>
+              </Link>
+              <Link to="/Bookmark" className="product-card">
+                <img
+                  src="https://i.pinimg.com/1200x/95/37/4a/95374a33b9561048e09172d1a93be3ff.jpg"
+                  alt="Vintage Bookmarks"
+                  className="product-image"
+                />
+                <div className="product-info">
+                  <h3>Vintage Bookmarks</h3>
+                  <p>A collection of unique, handcrafted bookmarks.</p>
+                </div>
+              </Link>
+              <Link to="/Potli" className="product-card">
+                <img
+                  src="https://i.pinimg.com/1200x/4d/19/7d/4d197d92d0d727744b98a94773410cf2.jpg"
+                  alt="Artisan Potli Bag"
+                  className="product-image"
+                />
+                <div className="product-info">
+                  <h3>Artisan Potli Bag</h3>
+                  <p>Hand-stitched cloth bag for your travel essentials.</p>
+                </div>
+              </Link>
+            </div>
+          </section>
+        </main>
+        <main>
+          <section id="featured" className="featured-products">
+            <h2>Products</h2>
+            <div className="product-grid">
+              {/* Journal */}
+              <div className="product-card">
+                <img
+                  src="https://i.pinimg.com/736x/e0/62/01/e06201d44f84f51fceb8fc621d690740.jpg"
+                  alt="The Wanderer's Journal"
+                  className="product-image"
+                />
+                <div className="product-info">
+                  <h3>The Wanderer's Journal</h3>
+                  {/* <p>A handcrafted leather journal for your adventures.</p> */}
+                  <Link to="/Journal" className="product-button">
+                    View Journal
+                  </Link>
+                </div>
+              </div>
 
-        {/* Featured Products Section */}
-        <section id="featured" className="featured-products">
-          <h2>Our Collection Products</h2>
-          <div className="product-grid">
-            <div className="product-card">
-              <img
-                src="https://i.pinimg.com/736x/e0/62/01/e06201d44f84f51fceb8fc621d690740.jpg"
-                alt="Travel Journal"
-                width="300"
-                height="250"
-              />
-              <h3>Journal's </h3>
-              <p>
-                A handcrafted, leather-bound companion for your travel memories.
-              </p>
-              <button className="product-btn">View Details</button>
-            </div>
-            <div className="product-card">
-              <img
-                src="https://i.pinimg.com/736x/95/37/4a/95374a33b9561048e09172d1a93be3ff.jpg"
-                alt="Antique Compass"
-                width="300"
-                height="250"
-              />
-              <h3>BookMarks</h3>
-              <p>A vintage-style brass compass to guide your wanderings.</p>
-              {/* <button className="product-btn">View Details</button> */}
-            </div>
-            <div className="product-card">
-              <img
-                src="https://i.pinimg.com/1200x/4d/19/7d/4d197d92d0d727744b98a94773410cf2.jpg"
-                alt="Fountain Pen"
-                width="300"
-                height="250"
-              />
-              <h3>Potli Bag</h3>
-              <p>An elegant fountain pen for scripting your epic tales.</p>
-              {/* <button className="product-btn">View Details</button> */}
-            </div>
-            {/* <div className="product-card">
-              <img
-                src="https://i.pinimg.com/1200x/5c/b6/75/5cb675352df67fb3d8ee439fa62ed363.jpg"
-                alt="Thank You card"
-                width="300"
-                height="250"
-              />
-              <h3>Thank You card</h3>
-              <p>An elegant fountain pen for scripting your epic tales.</p>
-              <button className="product-btn">View Details</button>
-            </div> */}
-          </div>
-        </section>
+              {/* Bookmark */}
+              <div className="product-card">
+                <img
+                  src="https://i.pinimg.com/1200x/95/37/4a/95374a33b9561048e09172d1a93be3ff.jpg"
+                  alt="Vintage Bookmarks"
+                  className="product-image"
+                />
+                <div className="product-info">
+                  <h3>Vintage Bookmarks</h3>
+                  {/* <p>A collection of unique, handcrafted bookmarks.</p> */}
+                  <Link to="/Bookmark" className="product-button">
+                    View Bookmark
+                  </Link>
+                </div>
+              </div>
 
-        {/* Footer */}
+              {/* Potli */}
+              <div className="product-card">
+                <img
+                  src="https://i.pinimg.com/1200x/4d/19/7d/4d197d92d0d727744b98a94773410cf2.jpg"
+                  alt="Artisan Potli Bag"
+                  className="product-image"
+                />
+                <div className="product-info">
+                  <h3>Artisan Potli Bag</h3>
+                  {/* <p>Hand-stitched cloth bag for your travel essentials.</p> */}
+                  <Link to="/Potli" className="product-button">
+                    View Potli
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </section>
+        </main>
         <footer className="footer">
           <div className="footer-content">
-            <div className="footer-section quick-links">
+            <div className="footer-section footer-quick-links">
               <h3>Quick Links</h3>
               <ul className="footer-links">
                 <li>
-                  {/* Smooth scroll link to home */}
-                  <a href="#top" onClick={(e) => handleSmoothScroll(e, "top")}>
+                  <a
+                    href="#hero"
+                    onClick={(e) => handleSmoothScroll(e, "hero")}
+                  >
                     Home
                   </a>
                 </li>
                 <li>
-                  {/* Smooth scroll link to featured products */}
-                  <a
-                    href="#featured"
-                    onClick={(e) => handleSmoothScroll(e, "featured")}
-                  >
-                    Shop
-                  </a>
+                  {/* This is the updated link for Shop */}
+                  <Link to="/shop">Shop</Link>
                 </li>
                 <li>
-                  <a href="/cart">Cart</a>
+                  {/* This is the updated link for About */}
+                  <Link to="/about">About</Link>
                 </li>
                 <li>
-                  <a href="/about">About</a>
+                  {/* This is the updated link for Contact, now navigating to Myaccount */}
+                  <Link to="/myaccount">MyAccount</Link>
                 </li>
               </ul>
             </div>
-            <div className="footer-section information">
+            <div className="footer-section footer-information">
               <h3>Information</h3>
               <ul className="footer-links">
                 <li>
-                  <a href="/privacy">Privacy Policy</a>
+                  <a
+                    href="#shipping"
+                    onClick={(e) => handleSmoothScroll(e, "shipping")}
+                  >
+                    Shipping & Returns
+                  </a>
                 </li>
                 <li>
-                  <a href="/terms">Terms of Service</a>
+                  <a
+                    href="#privacy"
+                    onClick={(e) => handleSmoothScroll(e, "privacy")}
+                  >
+                    Privacy Policy
+                  </a>
                 </li>
                 <li>
-                  <a href="/faq">FAQ</a>
+                  <a
+                    href="#terms"
+                    onClick={(e) => handleSmoothScroll(e, "terms")}
+                  >
+                    Terms of Service
+                  </a>
                 </li>
               </ul>
             </div>
-            <div className="footer-section">
+            <div className="footer-section footer-contact">
               <h3>Contact Us</h3>
-              <div className="contact-info">
-                <p>Email: contact@pathtopage.com</p>
-                <p>Phone: (123) 456-7890</p>
-              </div>
-              {/* Social Media Buttons */}
+              <p>Email: info@wanderlustgoods.com</p>
+              <p>Phone: +1 (555) 123-4567</p>
+              <p>Address: 123 Artisan Alley, Travel Town, 12345</p>
               <div className="social-links">
-                <button className="button" aria-label="GitHub">
+                {/* Facebook Button */}
+                <button className="button" aria-label="Facebook">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="currentColor"
-                    viewBox="0 0 496 512"
+                    viewBox="0 0 512 512"
                   >
-                    <path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3.3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.3-6.2-10.1-27.8 2.3-57.4 0 0 21.1-6.9 69.2 25.8 20.1-5.6 41.6-8.3 62.1-8.3 20.6 0 42.1 2.8 62.1 8.3 48.1-32.6 69.2-25.8 69.2-25.8 12.4 29.6 4.6 51.2 2.3 57.4 16 17.6 23.6 31.4 23.6 58.9 0 96.5-58.7 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z" />
+                    <path d="M504 256C504 119 393 8 256 8S8 119 8 256c0 123.78 90.69 226.38 209.25 245V327.69h-63V256h63v-54.64c0-62.15 37-96.48 93.67-96.48 27.14 0 55.52 4.84 55.52 4.84v61h-31.28c-30.8 0-40.42 19.12-40.42 38.73V256h68.78l-11 71.69h-57.78V501.69C413.31 482.38 504 379.78 504 256z" />
                   </svg>
                 </button>
-                <button className="button" aria-label="Instagram">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="currentColor"
-                    viewBox="0 0 448 512"
-                  >
-                    <path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z" />
-                  </svg>
-                </button>
+                {/* Twitter Button */}
                 <button className="button" aria-label="Twitter">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -1203,7 +1338,6 @@ html::-webkit-scrollbar {
               <h3>Stay Connected</h3>
               <p>Subscribe to our newsletter for exclusive updates.</p>
               <form>
-                {/* Adding an accessible label for the newsletter input */}
                 <label htmlFor="newsletter-email" className="visually-hidden">
                   Enter your email for the newsletter
                 </label>
@@ -1212,14 +1346,14 @@ html::-webkit-scrollbar {
                   id="newsletter-email"
                   placeholder="Enter your email"
                 />
-                <button type="submit">Subscribe</button>
+                <button type="submit" aria-label="Subscribe to newsletter">
+                  Subscribe
+                </button>
               </form>
             </div>
           </div>
           <div className="footer-bottom">
-            <p className="copyright">
-              &copy; 2024 Path to Page. All Rights Reserved.
-            </p>
+            <p>&copy; 2025 Path to page. All rights reserved.</p>
           </div>
         </footer>
       </div>

@@ -2,10 +2,12 @@ import React, { useState, useEffect, useRef } from "react";
 
 // The main component for the shop page.
 const ShopPage = () => {
+  // State to manage whether dark mode is enabled or not.
   const [isDarkMode, setIsDarkMode] = useState(false);
+  // Ref to track if the animations have already run to prevent re-triggering.
   const hasAnimated = useRef(false);
 
-  // Product data with links to detail pages
+  // An array of product objects, each containing details for a product.
   const products = [
     {
       id: 1,
@@ -14,7 +16,7 @@ const ShopPage = () => {
       description: "A handcrafted leather journal to document your journeys.",
       image:
         "https://i.pinimg.com/736x/e0/62/01/e06201d44f84f51fceb8fc621d690740.jpg",
-      link: "/Journal",
+      link: "/Journal", // Link to the specific product page.
     },
     {
       id: 2,
@@ -45,16 +47,18 @@ const ShopPage = () => {
     },
   ];
 
-  // Function to handle navigation
+  // Function to handle navigation to a different page.
   const handleNavigation = (path) => {
-    window.location.href = path;
+    // Uses window.location.href to navigate, adding '#' for HashRouter compatibility.
+    window.location.href = `#${path}`;
   };
 
-  // New function to handle smooth scrolling to a section
+  // Function to handle smooth scrolling to an element on the same page.
   const handleSmoothScroll = (event, targetId) => {
-    event.preventDefault();
+    event.preventDefault(); // Prevents the default anchor link behavior.
     const targetElement = document.getElementById(targetId);
     if (targetElement) {
+      // Scrolls the view smoothly to the target element.
       window.scrollTo({
         top: targetElement.offsetTop,
         behavior: "smooth",
@@ -62,13 +66,14 @@ const ShopPage = () => {
     }
   };
 
-  // Toggles the theme between light and dark
+  // Toggles the theme between light and dark mode.
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
   };
 
-  // Animations
+  // useEffect hook to handle animations when the component mounts.
   useEffect(() => {
+    // Function to load external animation scripts (GSAP).
     const loadScripts = () => {
       const scripts = [
         "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js",
@@ -76,11 +81,13 @@ const ShopPage = () => {
       ];
       let scriptsLoaded = 0;
       scripts.forEach((src) => {
+        // Check if the script is already on the page.
         if (document.querySelector(`script[src="${src}"]`)) {
           scriptsLoaded++;
           if (scriptsLoaded === scripts.length) initAnimations();
           return;
         }
+        // If not, create a script tag and append it to the body.
         const script = document.createElement("script");
         script.src = src;
         script.async = true;
@@ -94,11 +101,13 @@ const ShopPage = () => {
       });
     };
 
+    // Function to initialize the animations once scripts are loaded.
     const initAnimations = () => {
       if (hasAnimated.current || !window.gsap) return;
 
       window.gsap.registerPlugin(window.ScrollTrigger);
 
+      // Animate the main header text.
       window.gsap.from(".shop-header h1", {
         duration: 1,
         y: -50,
@@ -106,6 +115,7 @@ const ShopPage = () => {
         ease: "power3.out",
       });
 
+      // Animate the header paragraph.
       window.gsap.from(".shop-header p", {
         duration: 1,
         y: -30,
@@ -114,6 +124,7 @@ const ShopPage = () => {
         ease: "power3.out",
       });
 
+      // Animate each product card as it scrolls into view.
       window.gsap.utils.toArray(".product-card").forEach((card, i) => {
         window.gsap.from(card, {
           duration: 1,
@@ -127,23 +138,26 @@ const ShopPage = () => {
           },
         });
       });
-      hasAnimated.current = true;
+      hasAnimated.current = true; // Mark animations as complete.
     };
 
     loadScripts();
-  }, []);
+  }, []); // Empty dependency array means this runs once on mount.
 
+  // A template literal containing all the CSS styles for this component.
   const styles = `
+    /* --- Google Fonts Import --- */
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;600&display=swap');
 
+    /* --- Base Styles --- */
     html { scroll-behavior: smooth; }
-    
     body {
       margin: 0;
       padding: 0;
       font-family: 'Poppins', sans-serif;
     }
 
+    /* --- Shop Page Container --- */
     .shop-page {
       background-color: #f4f1eb;
       padding: 4rem 2rem;
@@ -153,50 +167,39 @@ const ShopPage = () => {
       position: relative;
     }
     
-    /* Dark Mode Styles */
+    /* --- Dark Mode Styles --- */
     .shop-page.dark-mode {
       background-color: #0d0d0eff;
       color: #e0e0e0;
     }
-    .shop-page.dark-mode .shop-header h1 {
-      color: #ffffff;
-    }
+    .shop-page.dark-mode .shop-header h1 { color: #ffffff; }
     .shop-page.dark-mode .shop-header p,
-    .shop-page.dark-mode .product-info p {
-      color: #a0a0a0;
-    }
+    .shop-page.dark-mode .product-info p { color: #a0a0a0; }
     .shop-page.dark-mode .product-card {
       background-color: #2c303a;
       color: #e0e0e0;
       box-shadow: 0 8px 20px rgba(0,0,0,0.5);
     }
-    .shop-page.dark-mode .product-info h3 {
-      color: #ffffff;
-    }
+    .shop-page.dark-mode .product-info h3 { color: #ffffff; }
     .shop-page.dark-mode .action-btn {
       background-color: #4a4f5a;
       color: #ffffff;
     }
-    .shop-page.dark-mode .action-btn:hover {
-      background-color: #5a5f6a;
-    }
-    .shop-page.dark-mode .styled-wrapper .button:before {
-      border-color: #ffffff;
-    }
-    .shop-page.dark-mode .button-elem svg {
-      fill: #ffffff;
-    }
+    .shop-page.dark-mode .action-btn:hover { background-color: #5a5f6a; }
+    .shop-page.dark-mode .styled-wrapper .button:before { border-color: #ffffff; }
+    .shop-page.dark-mode .button-elem svg { fill: #ffffff; }
 
+    /* --- Shop Content Container --- */
     .shop-container {
       max-width: 1200px;
       margin: 0 auto;
     }
 
+    /* --- Shop Header Section --- */
     .shop-header {
       text-align: center;
       margin-bottom: 4rem;
     }
-
     .shop-header h1 {
       font-family: 'Playfair Display', serif;
       font-size: 3.5rem;
@@ -204,50 +207,48 @@ const ShopPage = () => {
       margin: 0 0 0.5rem;
       transition: color 0.4s;
     }
-
     .shop-header p {
       font-size: 1.2rem;
       color: #777;
       transition: color 0.4s;
     }
     
+    /* --- Product Grid --- */
     .shop-grid {
       display: grid;
-      gap: 3rem; /* Increased gap */
-      grid-template-columns: repeat(1, 1fr); /* Default to 1 column for mobile */
+      gap: 3rem;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      justify-items: center;
     }
 
-.product-card {
-  background: #fff;
-  border-radius: 10px;
-  width: 300px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  gap: 1.2rem;
-  transition: all 0.4s ease;
-  padding: 2.5rem;
-  align-items: center;
-  text-align: center;
-  position:relative;
-  right :200px
-
-}
-
+    /* --- Individual Product Card --- */
+    .product-card {
+      background: #fff;
+      border-radius: 10px;
+      width: 300px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      transition: all 0.4s ease;
+      padding: 2.5rem;
+      align-items: center;
+      text-align: center;
+    }
     .product-card:hover {
       transform: translateY(-8px);
       box-shadow: 0 15px 30px rgba(0,0,0,0.12);
     }
     
+    /* --- Product Image Container --- */
     .product-image {
       width: 100%;
       position: relative;
-      padding-bottom: 100%; /* Creates a square aspect ratio */
+      padding-bottom: 100%; /* Square aspect ratio */
       border-radius: 8px;
       overflow: hidden;
     }
-    
     .product-image img {
       position: absolute;
       top: 0;
@@ -257,50 +258,46 @@ const ShopPage = () => {
       object-fit: cover;
       transition: transform 0.4s ease;
     }
+    .product-card:hover .product-image img { transform: scale(1.05); }
 
-    .product-card:hover .product-image img {
-      transform: scale(1.05);
-    }
-
+    /* --- Product Information Section --- */
     .product-info {
       padding: 0;
       text-align: center;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      flex-grow: 1;
     }
-
     .product-info h3 {
       font-family: 'Playfair Display', serif;
       margin: 0 0 0.5rem;
-      font-size: 1.8rem; /* Increased font size */
+      font-size: 1.8rem;
       transition: color 0.4s;
     }
-
     .product-info p {
       color: #666;
-      margin-bottom: 2rem; /* Increased margin */
-      font-size: 1.1rem; /* Increased font size */
+      margin-bottom: 2rem;
+      font-size: 1.1rem;
       flex-grow: 1;
       transition: color 0.4s;
     }
 
+    /* --- Action Button (e.g., "View Product") --- */
     .action-btn {
-      padding: 1rem 2rem; /* Increased padding */
+      padding: 1rem 2rem;
       border: none;
       border-radius: 50px;
-      font-size: 1.1rem; /* Increased font size */
+      font-size: 1.1rem;
       font-weight: 600;
       cursor: pointer;
       background-color: #333;
       color: #fff;
       transition: background-color 0.3s ease;
       align-self: center;
+      margin-top: auto;
     }
-
-    .action-btn:hover {
-      background-color: #555;
-    }
+    .action-btn:hover { background-color: #555; }
     
     /* --- Back Button Styles --- */
     .styled-wrapper {
@@ -321,7 +318,6 @@ const ShopPage = () => {
       cursor: pointer;
       border: 0;
     }
-
     .styled-wrapper .button:before {
       content: "";
       position: absolute;
@@ -330,7 +326,6 @@ const ShopPage = () => {
       border: 2px solid #333;
       transition: all 0.4s;
     }
-
     .styled-wrapper .button:after {
       content: "";
       position: absolute;
@@ -341,26 +336,22 @@ const ShopPage = () => {
       transition: all 0.4s;
       opacity: 0;
     }
-
     .styled-wrapper .button:hover:before,
     .styled-wrapper .button:focus:before {
       opacity: 0;
       transform: scale(0.7);
     }
-
     .styled-wrapper .button:hover:after,
     .styled-wrapper .button:focus:after {
       opacity: 1;
       transform: scale(1);
     }
-
     .styled-wrapper .button-box {
       display: flex;
       position: absolute;
       top: 0;
       left: 0;
     }
-
     .styled-wrapper .button-elem {
       display: block;
       width: 16px;
@@ -368,26 +359,23 @@ const ShopPage = () => {
       margin: 14px;
       transform: rotate(360deg);
     }
-    
     .styled-wrapper .button-elem svg {
       fill: #333;
       transition: fill 0.4s;
     }
-
     .styled-wrapper .button:hover .button-box,
     .styled-wrapper .button:focus .button-box {
       transition: 0.4s;
       transform: translateX(-44px);
     }
 
-    /* --- Theme Toggle Switch Styles (From Uiverse.io by cuzpq) --- */
+    /* --- Theme Toggle Switch Styles --- */
     .theme-toggle-wrapper {
       position: absolute;
       top: 1.5rem;
       right: 2rem;
       z-index: 1000;
     }
-    
     .theme-checkbox {
       --toggle-size: 10px;
       -webkit-appearance: none;
@@ -404,7 +392,6 @@ const ShopPage = () => {
       cursor: pointer;
       font-size: var(--toggle-size);
     }
-
     .theme-checkbox::before {
       content: "";
       width: 2em;
@@ -418,21 +405,17 @@ const ShopPage = () => {
       border-radius: 50%;
       transition: 0.4s;
     }
-
     .theme-checkbox:checked::before {
       left: calc(100% - 2em - 0.375em);
       background-position: 0;
     }
-
-    .theme-checkbox:checked {
-      background-position: 100%;
-    }
+    .theme-checkbox:checked { background-position: 100%; }
     
-    /* --- Root variables for easy theming --- */
+    /* --- CSS Variables for Footer Theming --- */
     :root {
-      --footer-bg-light: #fffaf0; /* floralwhite */
-      --footer-text-light: #0c0c0cff; /* Darker grey for contrast */
-      --footer-accent: #b99a6b; /* Muted Gold */
+      --footer-bg-light: #fffaf0;
+      --footer-text-light: #0c0c0cff;
+      --footer-accent: #b99a6b;
       --footer-shadow-light: rgba(0 0 0 / 0.1);
       --glass-bg-light: rgba(255 255 255 / 0.6);
       --glass-border-light: rgba(255 255 255 / 0.7);
@@ -440,6 +423,7 @@ const ShopPage = () => {
       --footer-border-light: rgba(0 0 0 / 0.1);
     }
 
+    /* --- Footer Styles --- */
     .footer {
       background: var(--footer-bg-light);
       backdrop-filter: blur(10px) saturate(130%);
@@ -450,33 +434,30 @@ const ShopPage = () => {
       text-align: center;
       padding: 5rem 2rem;
       gap:10px;
-      //  margin-top: 4rem;
       transition: background-color 0.5s ease, color 0.5s ease;
       font-family: 'Poppins', sans-serif;
       letter-spacing: 0.3px;
       user-select: none;
     }
 
+    /* --- Dark Mode Footer Styles --- */
     @media (prefers-color-scheme: dark) {
       :root {
-        --footer-bg-dark: #12131f; /* Darker blue-black */
-        --footer-text-dark: #fdf8f0; /* Parchment */
+        --footer-bg-dark: #12131f;
+        --footer-text-dark: #fdf8f0;
         --glass-bg-dark: rgba(30 30 30 / 0.25);
         --glass-border-dark: rgba(255 255 255 / 0.12);
         --footer-border-dark: rgba(255 255 255 / 0.12);
         --footer-shadow-dark: rgba(0 0 0 / 0.4);
       }
-
       .footer {
         background-color: var(--footer-bg-dark);
-        backdrop-filter: none;
-        -webkit-backdrop-filter: none;
-        box-shadow: none;
         border-top: 1px solid var(--footer-border-dark);
         color: var(--footer-text-dark);
       }
     }
 
+    /* --- Footer Content Grid --- */
     .footer-content {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -486,6 +467,7 @@ const ShopPage = () => {
       text-align: left;
     }
 
+    /* --- Footer Section Titles --- */
     .footer-section h3 {
       font-size: 1.4rem;
       margin-bottom: 1rem;
@@ -496,11 +478,11 @@ const ShopPage = () => {
       text-transform: uppercase;
     }
 
+    /* --- Footer Links --- */
     .footer-links li {
       list-style: none;
       margin-bottom: 0.6rem;
     }
-
     .footer-links a {
       color: var(--footer-text-light);
       text-decoration: none;
@@ -508,14 +490,13 @@ const ShopPage = () => {
       transition: opacity 0.25s ease, color 0.25s ease;
       font-weight: 500;
     }
-
     .footer-links a:hover {
       opacity: 1;
       color: var(--footer-accent);
       text-decoration: underline;
     }
   
-    /* Visually hidden label for accessibility */
+    /* --- Accessibility Class for Hiding Labels --- */
     .visually-hidden {
       position: absolute;
       width: 1px;
@@ -527,55 +508,37 @@ const ShopPage = () => {
       border: 0;
     }
 
+    /* --- Newsletter Input Field --- */
     .footer-newsletter input {
       width: 100%;
       padding: 1rem 1.1rem;
       border-radius: 10px;
       border: 1.2px solid var(--glass-border-light);
       background: var(--glass-bg-light);
-      backdrop-filter: blur(12px) saturate(120%);
-      -webkit-backdrop-filter: blur(12px) saturate(120%);
       color: var(--footer-text-light);
       font-size: 1rem;
-      font-weight: 600;
-      letter-spacing: 0.3px;
-      box-sizing: border-box;
       margin-bottom: 1rem;
-      box-shadow: 0 2px 10px var(--footer-shadow-light);
-      transition: all 0.3s ease;
     }
-
     .footer-newsletter input::placeholder {
       color: rgba(245, 244, 244, 0.5);
       font-weight: 400;
     }
-
     .footer-newsletter input:focus {
       outline: none;
       border-color: var(--footer-accent);
-      background: rgba(255 255 255 / 0.8);
       box-shadow: 0 0 15px var(--footer-accent);
-      color: var(--footer-text-light);
     }
 
+    /* --- Newsletter Dark Mode Input --- */
     @media (prefers-color-scheme: dark) {
       .footer-newsletter input {
         background: var(--glass-bg-dark);
         border-color: var(--glass-border-dark);
         color: var(--footer-text-dark);
-        box-shadow: 0 2px 12px var(--footer-shadow-dark);
-      }
-      .footer-newsletter input::placeholder {
-        color: rgba(238, 238, 238, 0.5);
-      }
-      .footer-newsletter input:focus {
-        border-color: var(--footer-accent);
-        background: rgba(74, 144, 226, 0.25);
-        box-shadow: 0 0 15px var(--footer-accent);
-        color: var(--footer-text-dark);
       }
     }
 
+    /* --- Newsletter Subscribe Button --- */
     .footer-newsletter button {
       width: 100%;
       padding: 1rem;
@@ -586,33 +549,20 @@ const ShopPage = () => {
       font-size: 1.05rem;
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 6px 14px rgba(74, 144, 226, 0.45);
-      transition: all 0.3s ease;
-      letter-spacing: 0.4px;
-      text-transform: uppercase;
-      user-select: none;
     }
-
     .footer-newsletter button:hover {
       background:#FFE5B4;
-      box-shadow: 0 8px 18px rgba(53, 122, 189, 0.7);
       transform: translateY(-2px);
       color: #08080893;
-      border-color: #285A8E;
     }
 
-    .footer-newsletter button:active {
-      transform: translateY(0);
-      box-shadow: 0 4px 10px rgba(53, 122, 189, 0.35);
-    }
-
+    /* --- Social Media Links --- */
     .social-links {
       display: flex;
       gap: 1.2rem;
       margin-top: 2rem;
       justify-content: center;
     }
-
     .social-links .button {
       cursor: pointer;
       width: 50px;
@@ -620,57 +570,28 @@ const ShopPage = () => {
       border-radius: 50%;
       border: 1.5px solid rgba(255 255 255 / 0.3);
       background: var(--glass-bg-light);
-      backdrop-filter: blur(12px) saturate(130%);
-      -webkit-backdrop-filter: blur(12px) saturate(130%);
-      box-shadow: 0 3px 10px var(--footer-shadow-light);
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-      user-select: none;
-      position: relative;
-      overflow: hidden;
     }
-
     @media (prefers-color-scheme: dark) {
-      .social-links .button {
-        background: var(--glass-bg-dark);
-        border-color: rgba(255 255 255 / 0.15);
-        box-shadow: 0 3px 14px var(--footer-shadow-dark);
-      }
+      .social-links .button { background: var(--glass-bg-dark); }
     }
-
     .social-links .button svg {
       width: 26px;
       height: 26px;
       color: var(--footer-text-light);
-      filter: drop-shadow(0 0 1px rgba(0,0,0,0.15));
-      transition: color 0.3s ease;
-      z-index: 10;
     }
-
     @media (prefers-color-scheme: dark) {
-      .social-links .button svg {
-        color: var(--footer-text-dark);
-        filter: drop-shadow(0 0 2px rgba(0,0,0,0.25));
-      }
+      .social-links .button svg { color: var(--footer-text-dark); }
     }
-
     .social-links .button:hover {
       transform: scale(1.1) translateY(-3px);
-      box-shadow: 0 8px 20px rgba(74, 144, 226, 0.35);
       border-color: var(--footer-accent);
     }
+    .social-links .button:hover svg { color: var(--footer-accent); }
 
-    .social-links .button:hover svg {
-      color: var(--footer-accent);
-    }
-
-    .social-links .button:active {
-      transform: scale(0.95);
-      box-shadow: 0 4px 10px rgba(74, 144, 226, 0.25);
-    }
-
+    /* --- Footer Bottom Section (Copyright) --- */
     .footer-bottom {
       text-align: center;
       margin-top: 3rem;
@@ -678,10 +599,7 @@ const ShopPage = () => {
       padding-top: 1.2rem;
       font-size: 0.9rem;
       color: var(--footer-text-light);
-      user-select: none;
-      letter-spacing: 0.2px;
     }
-
     @media (prefers-color-scheme: dark) {
       .footer-bottom {
         border-top-color: rgba(255 255 255 / 0.1);
@@ -689,197 +607,100 @@ const ShopPage = () => {
       }
     }
 
-    /* Override link colors for Quick Links and Information sections */
-/* Override link colors for Quick Links and Information sections */
-.footer-section.footer-quick-links .footer-links a,
-.footer-section.footer-information .footer-links a {
-  color: white;
-  opacity: 0.85;
-  font-weight: 500;
-  text-decoration: none;
-  transition: opacity 0.25s ease, color 0.25s ease;
-}
+    /* --- Link Color Overrides for Specific Footer Sections --- */
+    .footer-section.footer-quick-links .footer-links a,
+    .footer-section.footer-information .footer-links a {
+      color: white;
+    }
+    .footer-section.footer-quick-links .footer-links a:hover,
+    .footer-section.footer-information .footer-links a:hover {
+      color: var(--footer-accent);
+    }
 
-.footer-section.footer-quick-links .footer-links a:hover,
-.footer-section.footer-information .footer-links a:hover {
-  color: var(--footer-accent);
-  opacity: 1;
-  text-decoration: underline;
-}
-
-
-    /* --- Media Queries (Adjustments for different screen sizes) --- */
-    /* Small to Medium Devices (e.g., larger phones, 480px and up) */
+    /* --- Media Queries for Responsive Design --- */
     @media (min-width: 480px) {
-      .shop-page {
-        padding: 3rem 1.5rem;
-      }
-      .shop-header h1 {
-        font-size: 2.5rem;
-      }
-      .shop-header p {
-        font-size: 1.1rem;
-      }
-      .styled-wrapper {
-        top: 1.5rem;
-        left: 1.5rem;
-      }
-      .theme-toggle-wrapper {
-        top: 1.5rem;
-        right: 1.5rem;
-      }
-      .theme-checkbox {
-        --toggle-size: 12px;
-      }
-      .product-card {
-        flex: 1 1 100%;
-      }
+      /* Styles for small screens and up */
     }
-    /* Tablets and up (768px and up) */
     @media (min-width: 768px) {
-      .shop-page {
-        padding: 4rem 2rem;
-      }
-      .shop-header h1 {
-        font-size: 3rem;
-      }
-      .shop-header p {
-        font-size: 1.2rem;
-      }
-      .styled-wrapper {
-        top: 2rem;
-        left: 2rem;
-      }
-      .theme-toggle-wrapper {
-        top: 2.25rem;
-        right: 2rem;
-      }
-      .styled-wrapper .button {
-        width: 50px;
-        height: 50px;
-      }
-      .styled-wrapper .button-elem {
-        width: 18px;
-        height: 18px;
-        margin: 16px;
-      }
-      .styled-wrapper .button:hover .button-box,
-      .styled-wrapper .button:focus:hover {
-        transform: translateX(-50px);
-      }
-      .theme-checkbox {
-        --toggle-size: 14px;
-      }
-      .product-card {
-        padding: 2.5rem;
-      }
-      .shop-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-    /* Large devices (1024px and up) */
-    @media (min-width: 1024px) {
-      .shop-header h1 {
-        font-size: 3.5rem;
-      }
-      .shop-header p {
-        font-size: 1.3rem;
-      }
-      .shop-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
-    }
-    /* Extra-large devices (1200px and up) */
-    @media (min-width: 1200px) {
-      .shop-grid {
-        grid-template-columns: repeat(4, 1fr);
-      }
+      /* Styles for medium screens and up */
     }
   `;
 
   return (
     <>
+      {/* The style tag injects all the CSS from the 'styles' variable into the component. */}
       <style>{styles}</style>
+      {/* Main container for the shop page. Applies dark-mode class conditionally. */}
       <div className={`shop-page ${isDarkMode ? "dark-mode" : ""}`}>
-        {/* Back Button */}
+        {/* Wrapper for the animated back button. */}
         <div className="styled-wrapper">
+          {/* The back button itself. */}
           <button
             className="button"
             aria-label="Go back"
             onClick={() => window.history.back()}
           >
+            {/* Box containing the two arrow icons for the animation. */}
             <div className="button-box">
+              {/* First arrow icon. */}
               <span className="button-elem">
                 <svg viewBox="0 0 44 44" preserveAspectRatio="xMidYMid meet">
-                  <path
-                    d="M15.9,21.5L27.6,9.8c0.4-0.4,1-0.4,1.4,0s0.4,1,0,1.4L18.7,22l10.3,10.3c0.4,0.4,0.4,1,0,1.4s-1,0.4-1.4,0L15.9,22.9
-          C15.5,22.5,15.5,21.9,15.9,21.5z"
-                  ></path>
+                  <path d="M15.9,21.5L27.6,9.8c0.4-0.4,1-0.4,1.4,0s0.4,1,0,1.4L18.7,22l10.3,10.3c0.4,0.4,0.4,1,0,1.4s-1,0.4-1.4,0L15.9,22.9 C15.5,22.5,15.5,21.9,15.9,21.5z"></path>
                 </svg>
               </span>
+              {/* Second arrow icon for the hover effect. */}
               <span className="button-elem">
                 <svg viewBox="0 0 44 44" preserveAspectRatio="xMidYMid meet">
-                  <path
-                    d="M15.9,21.5L27.6,9.8c0.4-0.4,1-0.4,1.4,0s0.4,1,0,1.4L18.7,22l10.3,10.3c0.4,0.4,0.4,1,0,1.4s-1,0.4-1.4,0L15.9,22.9
-          C15.5,22.5,15.5,21.9,15.9,21.5z"
-                  ></path>
+                  <path d="M15.9,21.5L27.6,9.8c0.4-0.4,1-0.4,1.4,0s0.4,1,0,1.4L18.7,22l10.3,10.3c0.4,0.4,0.4,1,0,1.4s-1,0.4-1.4,0L15.9,22.9 C15.5,22.5,15.5,21.9,15.9,21.5z"></path>
                 </svg>
               </span>
             </div>
           </button>
         </div>
 
-        {/* Theme Toggle Switch */}
-        <div className="theme-toggle-wrapper">
-          <input
-            type="checkbox"
-            className="theme-checkbox"
-            id="theme-toggle"
-            onChange={toggleTheme}
-            checked={isDarkMode}
-            aria-label="Toggle light and dark theme"
-          />
-        </div>
+        {/* Wrapper for the theme toggle switch. */}
+        
 
+        {/* Main content container for the shop. */}
         <div className="shop-container">
+          {/* Header section with the title and subtitle. */}
           <header className="shop-header">
             <h1>Our Products</h1>
             <p>Handcrafted items and unique goods for the modern wanderer.</p>
           </header>
 
+          {/* Main grid where the product cards are displayed. */}
           <main className="shop-grid">
+            {/* Maps over the products array to create a card for each product. */}
             {products.map((product) => (
-              <div
-                key={product.id}
-                className="product-card"
-                onClick={() => handleNavigation(product.link)}
-                role="button"
-                tabIndex="0"
-                aria-label={`View details for ${product.name}`}
-              >
+              // Unique key for each product card, essential for React lists.
+              <div key={product.id} className="product-card">
+                {/* Container for the product image. */}
                 <div className="product-image">
                   <img src={product.image} alt={product.name} />
                 </div>
+                {/* Container for the product name, description, and button. */}
                 <div className="product-info">
                   <h3>{product.name}</h3>
                   <p>{product.description}</p>
-                  <button className="action-btn">View Product</button>
+                  {/* Button to view the product details page. */}
+                  <button
+                    className="action-btn"
+                    onClick={() => handleNavigation(product.link)}
+                  >
+                    View Product
+                  </button>
                 </div>
               </div>
             ))}
           </main>
         </div>
       </div>
+      {/* Footer section of the page. */}
       <footer className="footer">
+        {/* Grid container for all footer content. */}
         <div className="footer-content">
-          {/* <div className="footer-section footer-about">
-            <h3>Our Story</h3>
-            <p>
-              Handcrafted goods inspired by the art of travel and storytelling.
-              We believe in quality, craftsmanship, and the beauty of a
-              well-told story.
-            </p>
-          </div> */}
+          {/* Section for Quick Links. */}
           <div className="footer-section footer-quick-links">
             <h3>Quick Links</h3>
             <ul className="footer-links">
@@ -911,6 +732,7 @@ const ShopPage = () => {
               </li>
             </ul>
           </div>
+          {/* Section for Information links. */}
           <div className="footer-section footer-information">
             <h3>Information</h3>
             <ul className="footer-links">
@@ -940,11 +762,13 @@ const ShopPage = () => {
               </li>
             </ul>
           </div>
+          {/* Section for Contact Information. */}
           <div className="footer-section footer-contact">
             <h3>Contact Us</h3>
             <p>Email: info@wanderlustgoods.com</p>
             <p>Phone: +1 (555) 123-4567</p>
             <p>Address: 123 Artisan Alley, Travel Town, 12345</p>
+            {/* Container for social media icon buttons. */}
             <div className="social-links">
               {/* Facebook Button */}
               <button className="button" aria-label="Facebook">
@@ -968,11 +792,12 @@ const ShopPage = () => {
               </button>
             </div>
           </div>
+          {/* Section for the newsletter signup form. */}
           <div className="footer-section footer-newsletter">
             <h3>Stay Connected</h3>
             <p>Subscribe to our newsletter for exclusive updates.</p>
             <form>
-              {/* Adding an accessible label for the newsletter input */}
+              {/* Accessible label for the email input, visually hidden. */}
               <label htmlFor="newsletter-email" className="visually-hidden">
                 Enter your email for the newsletter
               </label>
@@ -987,6 +812,7 @@ const ShopPage = () => {
             </form>
           </div>
         </div>
+        {/* Bottom part of the footer with copyright info. */}
         <div className="footer-bottom">
           <p>&copy; 2023 Wanderlust Goods. All rights reserved.</p>
         </div>

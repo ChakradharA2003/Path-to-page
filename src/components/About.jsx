@@ -594,15 +594,7 @@ const About = () => {
             </button>
           </div>
         </div>
-        <div className="about-top-right">
-          <input
-            type="checkbox"
-            className="theme-checkbox"
-            onChange={toggleTheme}
-            checked={theme === "dark"}
-            aria-label="Toggle dark mode"
-          />
-        </div>
+      
 
         <div className="about-container">
           <header className="about-header">

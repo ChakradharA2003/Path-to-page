@@ -228,68 +228,60 @@ const Wishlist = () => {
 }
 
 .styled-wrapper .button {
-    display: block;
-    position: relative;
-    width: 56px;
-    height: 56px;
-    margin: 0;
-    overflow: hidden;
-    outline: none;
-    background-color: transparent;
-    cursor: pointer;
-    border: 0;
+  display: block;
+  position: relative;
+  width: 56px;
+  height: 56px;
+  margin: 0;
+  border: 0;
+  outline: none;
+  cursor: pointer;
+  background: transparent;
+  overflow: hidden;
 }
 
-.styled-wrapper .button:before,
-.styled-wrapper .button:after {
-    content: "";
-    position: absolute;
-    border-radius: 50%;
-    inset: 7px;
+/* Circle effects */
+.styled-wrapper .button::before,
+.styled-wrapper .button::after {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  border-radius: 50%;
+  transition: opacity 0.4s, transform 0.5s;
 }
 
-.styled-wrapper .button:before {
-    border: 3px solid black;
-    transition: opacity 0.4s, transform 0.5s;
+.styled-wrapper .button::before {
+  border: 3px solid #000;
 }
 
-.styled-wrapper .button:after {
-    border: 4px solid #599a53;
-    transform: scale(1.3);
-    transition: opacity 0.4s, transform 0.5s;
-    opacity: 0;
+.styled-wrapper .button::after {
+  border: 4px solid #599a53;
+  transform: scale(1.3);
+  opacity: 0;
 }
 
-.styled-wrapper .button:hover:before,
-.styled-wrapper .button:focus:before {
-    transform: scale(0.7);
-    opacity: 0;
+/* Hover / Focus effects */
+.styled-wrapper .button:hover::before,
+.styled-wrapper .button:focus::before {
+  transform: scale(0.7);
+  opacity: 0;
 }
 
-.styled-wrapper .button:hover:after,
-.styled-wrapper .button:focus:after {
-    transform: scale(1);
-    opacity: 1;
+.styled-wrapper .button:hover::after,
+.styled-wrapper .button:focus::after {
+  transform: scale(1);
+  opacity: 1;
 }
 
-.styled-wrapper .button-box {
-    width: 56px;
-    height: 56px;
-    display: flex;
-    position: relative;
-    transform: translate(0);
-    border-radius: 50%;
-    overflow: hidden;
-    transition: transform 0.5s, border-radius 0.3s, background-color 0.4s;
-}
-
+/* Icon inside button */
 .styled-wrapper .button-elem {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 56px; /* match button size so it's centered */
-    height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%; /* match parent button */
+  height: 100%;
 }
+
 
 .styled-wrapper .button-elem svg {
     width: 20px;
@@ -436,11 +428,7 @@ const Wishlist = () => {
         <div className="styled-wrapper">
           <button className="button" onClick={() => navigate("/")}>
             <div className="button-box">
-              <span className="button-elem">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path>
-                </svg>
-              </span>
+              
               <span className="button-elem">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path>
@@ -451,14 +439,7 @@ const Wishlist = () => {
         </div>
 
         {/* Dark mode toggle */}
-        <div className="theme-toggle-wrapper">
-          <input
-            type="checkbox"
-            className="theme-checkbox"
-            checked={isDarkMode}
-            onChange={toggleTheme}
-          />
-        </div>
+
 
         <div className="wishlist-container">
           <header className="wishlist-header">

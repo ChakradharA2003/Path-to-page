@@ -1,12 +1,12 @@
 import React from "react";
 import {
-  HashRouter as Router, // Changed from BrowserRouter to HashRouter
+  HashRouter as Router, // Use HashRouter for GitHub Pages
   Routes,
   Route,
   Navigate,
 } from "react-router-dom";
 
-// Import Firebase functions from the firebase/app module
+// Import Firebase functions
 import { initializeApp } from "firebase/app";
 
 // Page components
@@ -23,7 +23,7 @@ import Potli from "./components/Potli.jsx";
 import Thankyou from "./components/Thankyou.jsx";
 import Wishlist from "./components/Wishlist.jsx";
 
-// Your web app's Firebase configuration
+// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBMHYzYMD8nTbXwNIhyGvQp7tBycZyVup4",
   authDomain: "pathtopage-a2647.firebaseapp.com",
@@ -40,7 +40,7 @@ try {
   console.error("Error initializing Firebase:", error);
 }
 
-// Temporary Payment page
+// Temporary Payment Page
 const Payment = () => (
   <div
     style={{
@@ -59,20 +59,20 @@ const isAuthenticated = () => !!localStorage.getItem("user");
 
 function App() {
   return (
-    <Router>
+    <Router basename="/">
       <Routes>
-        <Route path="/title" element={<Title />} />
-        <Route path="/auth" element={<AuthPage />} />
+        <Route path="title" element={<Title />} />
+        <Route path="auth" element={<AuthPage />} />
         <Route path="/" element={<Home />} />
-        <Route path="/shop" element={<Shop />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/Myaccount" element={<Myaccount />} />
-        <Route path="/Bookmark" element={<Bookmark />} />
-        <Route path="/Journal" element={<Journal />} />
-        <Route path="/Potli" element={<Potli />} />
-        <Route path="/Thankyou" element={<Thankyou />} />
-        <Route path="/Wishlist" element={<Wishlist />} />
+        <Route path="shop" element={<Shop />} />
+        <Route path="about" element={<About />} />
+        <Route path="cart" element={<Cart />} />
+        <Route path="Myaccount" element={<Myaccount />} />
+        <Route path="Bookmark" element={<Bookmark />} />
+        <Route path="Journal" element={<Journal />} />
+        <Route path="Potli" element={<Potli />} />
+        <Route path="Thankyou" element={<Thankyou />} />
+        <Route path="Wishlist" element={<Wishlist />} />
         <Route
           path="/payment"
           element={
